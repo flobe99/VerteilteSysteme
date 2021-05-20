@@ -4,6 +4,8 @@ import sys
 import time
 from database import Database
 
+d = Database()
+
 app = Flask(__name__)
 
 @app.route('/')
@@ -55,6 +57,7 @@ def clearBlackboard():
 def readBlackboard():
 	#parameters
 	name = request.args.get('name')
+	ret = Database.read_blackboard(name)
 
 	if ret == 200:
 	    return 'Blackboard read successfully', ret

@@ -1,9 +1,4 @@
-from re import S
 import pymongo
-
-client = pymongo.MongoClient("mongodb+srv://sebastian:test1234@cluster0.0kjei.mongodb.net/blackboard?retryWrites=true&w=majority", ssl=True, ssl_cert_reqs='CERT_NONE')
-db = client["blackboard"]
-collection = db["blackboard1"]
 
 
 class Database(object):
@@ -106,7 +101,7 @@ class Database(object):
     def list_blackboards(self):
     #Listet alle vorhandenen Blackboards auf
         try:
-            results = collection.find({})
+            results = self.collection.find({})
 
             for result in results:
                 print(result["name"])

@@ -1,0 +1,328 @@
+swagger: "2.0"
+info:
+  description: ""
+  version: "1.0.0"
+  title: "Swagger Petstore"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: "apiteam@swagger.io"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "localhost"
+basePath: "/blackboard"
+tags:
+- name: "blackboard"
+  description: "Blackboard options"
+  externalDocs:
+    description: "Find out more"
+    url: "http://swagger.io"
+- name: "store"
+  description: "Access to Petstore orders"
+- name: "user"
+  description: "Operations about user"
+  externalDocs:
+    description: "Find out more about our store"
+    url: "http://swagger.io"
+schemes:
+- "https"
+- "http"
+paths:
+  /blackboard:
+    get:
+      tags:
+      - "blackboard"
+      summary: "Show options for blackboard"
+      description: "The user can choose between the options create, display, clear, delete and get the blackboard status"
+      operationId: "blackboard"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "success"
+  
+  /blackboard/create:
+    post:
+      tags:
+      - "blackboard"
+      summary: "Create a new blackboard"
+      description: "Creating a new blackboard when getting clicked"
+      operationId: ""
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "name"
+        description: "Name of hte blackboard"
+        required: true
+        schema:
+          $ref: "#/definitions/BlackboardCreate"
+      responses:
+        "200":
+          description: "Blackboard created successfully"
+        "400":
+          description: "Invalid parameters"
+        "409":
+          description: "Blackboard already exists"
+          
+  /blackboard/display:
+    get:
+      tags:
+      - "blackboard"
+      summary: "Update blackboard"
+      description: "Update an existing blackboard"
+      operationId: ""
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "data"
+        description: "Name of the blackboard and the data"
+        required: true
+        schema:
+          $ref: "#/definitions/BlackboardDisplay"
+      responses:
+        "200":
+          description: "Blackboard updated successfully"
+        "400":
+          description: "Invalid parameters"
+        "404":
+          description: "Blackboard not found"
+        "409":
+          description: "Internal Error"
+  
+  /blackboard/clear:
+    get:
+      tags:
+      - "blackboard"
+      summary: "Clear Blackboard"
+      description: "Deletes the content of a blackboard. Blackboard is no longer Valid."
+      operationId: ""
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "name"
+        required: true
+        schema:
+          $ref: "#/definitions/BlackboardClear"
+      responses:
+        "200":
+          description: "Blackboard updated successfully"
+        "404":
+          description: "Blackboard does not exists"
+        "400":
+          description: "Invalid parameters"
+        "409":
+          description: "Internal Error"
+          
+  /blackboard/read:
+    get:
+      tags:
+      - "blackboard"
+      summary: "Read the content from a Blackboard"
+      description: "Reads out the contents of a blackboard. Additionally the validity of the data is signaled. If the message is outdated this information is returned."
+      operationId: ""
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "name"
+        required: true
+        schema:
+          $ref: "#/definitions/BlackboardRead"
+      responses:
+        "200":
+          description: "Blackboard read successfully"
+          schema:
+            $ref: '#/definitions/Blackboard'
+        "404":
+          description: "Blackboard does not exists"
+        "400":
+          description: "Invalid parameters"
+        "444":
+          description: "Blackboard is empty"
+        "409":
+          description: "Internal Error"
+      
+  
+  /blackboard/getStatus:
+    get:
+      tags:
+      - "blackboard"
+      summary: "Get status of blackboard"
+      description: "Get the status of an existing blackboard"
+      operationId: ""
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "data"
+        description: "Name of the blackboard and the data"
+        required: true
+        schema:
+          $ref: "#/definitions/BlackboardStatus"
+      responses:
+        "200":
+          description: "Blackboard updated successfully"
+          schema:
+            $ref: "#/definitions/BlackboardStatusOutput"
+        "400":
+          description: "Invalid parameters"
+        "404":
+          description: "Blackboard not found"
+          
+  /blackboard/list:
+    get:
+      tags:
+      - "blackboard"
+      summary: "Get list of blackboards"
+      description: "Lists all existing blackboards."
+      operationId: ""
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+
+      responses:
+        "200":
+          description: "Blackboard updated successfully"
+          schema:
+            $ref: "#/definitions/BlackboardList"
+        "409":
+          description: "Internal Error"
+  
+  /blackboard/delete:
+    delete:
+      tags:
+      - "blackboard"
+      summary: "Delete blackboard"
+      description: "Delete an existing blackboard"
+      operationId: ""
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "data"
+        description: "Name of the blackboard"
+        required: true
+        schema:
+          $ref: "#/definitions/BlackboardDelete"
+      responses:
+        "200":
+          description: "Blackboard successfully deleted"
+        "400":
+          description: "Invalid parameters"
+        "404":
+          description: "Blackboard not found"
+  
+  /blackboard/deleteAll:
+    delete:
+      tags:
+      - "blackboard"
+      summary: "Delete all blackboards"
+      description: "Delete all existing blackboards"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Blackboards successfully deleted"
+        "400":
+          description: "Invalid parameters"
+  
+securityDefinitions:
+  petstore_auth:
+    type: "oauth2"
+    authorizationUrl: "http://petstore.swagger.io/oauth/dialog"
+    flow: "implicit"
+    scopes:
+      write:pets: "modify pets in your account"
+      read:pets: "read your pets"
+  api_key:
+    type: "apiKey"
+    name: "api_key"
+    in: "header"
+
+definitions:
+  BlackboardCreate:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      validity:
+        type: "boolean"
+
+  BlackboardDisplay:
+    type: "object"
+    required:
+    - "name"
+    - "message"
+    properties:
+      name:
+        type: "string"
+      data:
+        type: "string"
+
+  BlackboardDelete:
+    type: "object"
+    required:
+    - "name"
+    properties:
+      name:
+        type: "string"
+
+  BlackboardStatus:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+
+  BlackboardStatusOutput:
+    type: "object"
+    properties:
+      validityDate:
+        type: "number"
+      validity:
+        type: "boolean"
+        
+        
+  BlackboardClear:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        
+  BlackboardRead:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        
+  BlackboardList:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      
+        
+  Blackboard:
+    type: "object"
+    properties:
+      content: 
+        type: "string"
+      validity: 
+        type: "boolean"
+
+

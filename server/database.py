@@ -13,14 +13,14 @@ class Database(object):
         try:
             if self.collection.count_documents({"name": name}) > 0:
                 print("Blackboard existiert bereits")
-                return False
+                return 409
             else:
                 self.collection.insert_one({"name": name, "validity": validity, "time": time})
                 print("Blackboard wurde angelegt")
-                return True
+                return 200
         except:
             print("Es ist ein Fehler aufgetreten")
-            return False
+            return 500
 
 
     def display_blackboard(self, name, text, validity, time):
@@ -29,13 +29,13 @@ class Database(object):
             if self.collection.count_documents({"name": name}) > 0:
                 self.collection.update_one({"name": name}, {"$set":{"text": text, "validity": validity, "time": time}})
                 print("Blackboard wurde erfolgreich aktualisiert")
-                return True
+                return 200
             else:
                 print("Blackboard existiert nicht")
-                return False
+                return 404
         except:
             print("Blackboard konnte nicht aktualisiert werden")
-            return False
+            return 500
 
 
     def clear_blackboard(self, name, time):
@@ -44,13 +44,13 @@ class Database(object):
             if self.collection.count_documents({"name": name}) > 0:
                 self.collection.update_one({"name": name}, {"$set":{"text": "", "validity": "false", "time": time}})
                 print("Blackboard wurde erfolgreich aktualisiert")
-                return True
+                return 200
             else:
                 print("Blackboard existiert nicht")
-                return False          
+                return 404          
         except:
             print("Es ist ein Fehler aufgetreten")
-            return False
+            return 500
 
 
     def read_blackboard(self, name):
@@ -64,13 +64,13 @@ class Database(object):
                     else:
                         print(result)
                 print("Blackboard erfolgreich gelesen")
-                return True
+                return 200
             else:
                 print("Blackboard existiert nicht")
-                return False
+                return 404
         except:
             print("Es ist ein Fehler aufgetreten")
-            return False
+            return 500
 
 
     def get_blackboard_status(self, name):
@@ -83,19 +83,19 @@ class Database(object):
                         print("Das Blackboard ist leer")
                     else: 
                         print("Das Blackboard ist gefüllt")
-                    if result["validity"] == True:
+                    if result["validity"] == "true":
                         print("Das Blackboard ist gültig")
                     else:
                         print("Das Blackboard ist ungültig")
                     print("Letzte Aktualisierung: ", result["time"])
                 print("Status des Blackboards erfolgreich gelesen")
-                return True
+                return 200
             else:
                 print("Blackboard existiert nicht")
-                return False
+                return 404
         except:
             print("Es ist ein Fehler aufgetreten")
-            return False
+            return 500
 
 
     def list_blackboards(self):
@@ -106,8 +106,10 @@ class Database(object):
             for result in results:
                 print(result["name"])
             print("Blackboard Liste erfolgreich zurückgegeben")
+            return 200
         except:
             print("Es ist ein Fehler aufgetreten")
+            return 500
 
 
     def delete_blackboard(self, name):
@@ -116,19 +118,20 @@ class Database(object):
             if self.collection.count_documents({"name": name}) > 0:
                 self.collection.delete_one({"name": name})
                 print("Blackboard erfolgreich gelöscht")
-                return True
+                return 200
             else:
                 print("Blackboard existiert nicht")
-                return False
+                return 404
         except:
             print("Es ist ein Fehler aufgetreten")
-            return False
+            return 500
 
 
     def delete_all_blackboards(self):
     #Löscht alle Blackboards
         self.collection.delete_many({})
         print("Es wurden alle Blackboards gelöscht")
+        return 200
 
     
 

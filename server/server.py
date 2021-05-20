@@ -3,8 +3,9 @@ from flask import Flask, request
 import sys
 import time
 from database import Database
+import json
 
-d = Database()
+db = Database()
 
 app = Flask(__name__)
 
@@ -17,17 +18,17 @@ def blackboard():
 	return 'blackboard'
 
 @app.route('/blackboard/create', methods=['POST'])      #create a new blackboard und save data in the mongoDB
-def createBlackboard(pName, pValidity):
+def createBlackboard():
 	#parameters
 	name = request.args.post('name')
 	validity = request.args.post('validity')
 
-	ret = Database.create_blackboard(name,validity,time.time())
+	status_code = db.create_blackboard(name, validity, time.time())[1]
 
-	if ret == 200:
-	    return 'Blackboard updated successfully', ret
+	if status_code == 200:
+	    return 'Blackboard updated successfully', status_code
 	else:
-		return 'An error occurred', ret
+		return 'An error occurred', status_code
 
 @app.route('/blackboard/display', methods=['GET'])      #update Data from the blackboard
 def displayBlackboard():
@@ -35,74 +36,82 @@ def displayBlackboard():
 	name = request.args.get('name')
 	data = request.args.get('data')
 
-	ret = Database.display_blackboard(name,data,None, time.time())
+	status_code = db.display_blackboard(name, data, None, time.time())[1]
     
-	if ret == 200:
-	    return 'DISPLAY_BLACKBOARD', ret
+	if status_code == 200:
+	    return 'DISPLAY_BLACKBOARD', status_code
 	else:
-		return 'An error occurred', ret
+		return 'An error occurred', status_code
 
 @app.route('/blackboard/clear', methods=['GET'])        #clear content from the blackboard
 def clearBlackboard():
 	#parameters
 	name = request.args.get('name')
-	ret=Database.clear_blackboard(name,time.time())
+	status_code = db.clear_blackboard(name, time.time())[1]
 
-	if ret == 200:
-	    return 'Blackboard cleared successfully', ret
+	if status_code == 200:
+	    return 'Blackboard cleared successfully', status_code
 	else:
-		return 'An error occurred', ret
+		return 'An error occurred', status_code
 
 @app.route('/blackboard/read', methods=['GET'])         #read Data from the blackboard
 def readBlackboard():
 	#parameters
 	name = request.args.get('name')
-	ret = Database.read_blackboard(name)
+	result, status_code = db.read_blackboard(name)
 
-	if ret == 200:
-	    return 'Blackboard read successfully', ret
+	if status_code == 200:
+		del result['_id']
+		return json.dumps(result), status_code
 	else:
-		return 'An error occurred', ret
+		return 'An error occurred', status_code
 
 @app.route('/blackboard/getStatus', methods=['GET'])    #return the state from the blackboard
 def getBlackboardStatus():
 	#parameters
 	name = request.args.get('name')
+	result, status_code = db.get_blackboard_status(name)
 
-	ret = d.get_blackboard_status(name)
-
-	if ret == 200:
-	    return 'GET_BLACKBOARD_STATUS', ret
+	if status_code == 200:
+		del result['_id']
+		return json.dumps(result), status_code
 	else:
-		return 'An error occurred', ret
+		return 'An error occurred', status_code
 
 @app.route('/blackboard/list', methods=['GET'])         #get all blackboardnames
 def listBlackboard():
-	ret = d.list_blackboards()
+	results, status_code = db.list_blackboards()
+	tmp = { }
+	count = 1
+	for r in results:
+		tmp[str(count)] = [ ]
+		tmp[str(count)].append(r['name'])
+		tmp[str(count)].append(r['text'])
+		count += 1
 
-	if ret == 200:
-	    return 'List_BLACKBOARD', ret
+	if status_code == 200:
+	    return json.dumps(tmp), status_code
 	else:
-		return 'An error occurred', ret
+		return 'An error occurred', status_code
 
 @app.route('/blackboard/delete',methods=['DELETE'])     #delete current blacklist
 def deleteBlackboard():
 	#parameters
 	name = request.args.get('name')
-	ret = d.delete_blackboard(name)
+	status_code = d.delete_blackboard(name)[1]
 
-	if ret == 200:
-	    return 'DELETE_BLACKBOARD', ret
+	if status_code == 200:
+	    return 'DELETE_BLACKBOARD', status_code
 	else:
-		return 'An error occurred', ret
+		return 'An error occurred', status_code
 
 @app.route('/blackboard/deleteAll', methods=['DELETE'])   #delete all blacklists
 def deleteAllBlackboards():
-	ret = d.delete_all_blackboards()
+	status_code = d.delete_all_blackboards()[1]
 
-	if ret == 200:
-	    return 'DELETE_ALL_BLACKBOARDS', ret
+	if status_code == 200:
+	    return 'DELETE_ALL_BLACKBOARDS', status_code
 	else:
-		return 'An error occurred', ret
+		return 'An error occurred', status_code
 
 app.run()

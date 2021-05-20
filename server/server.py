@@ -1,4 +1,10 @@
-from flask import Flask
+#from .db.mongodb import Database
+from flask import Flask, request
+import sys
+import time
+
+d = mongodb.Database()
+
 
 app = Flask(__name__)
 
@@ -7,39 +13,66 @@ def welcome():
     return 'Welcome'
 
 @app.route('/blackboard')
-def welcome():
-    return 'Welcome'
+def blackboard():
+    return 'blackboard'
 
-@app.route('/blackboard/create')
-def createBlackboard():
-    return 'Creating blackboard'
+@app.route('/blackboard/create', methods=['POST'])      #create a new blackboard und save data in the mongoDB
+def createBlackboard(pName, pValidity):
+    #parameters
+    name = request.args.post('name')
+    validity = request.args.post('validity')
 
-@app.route('/blackboard/display')
+    ret = d.create_blackboard(name,validity,time.time())
+
+    return 'Blackboard updated successfully',200
+
+@app.route('/blackboard/display', methods=['GET'])      #update Data from the blackboard
 def displayBlackboard():
-    return 'DISPLAY_BLACKBOARD'
+    #parameters
+    name = request.args.get('name')
+    data = request.args.get('data')
 
-@app.route('/blackboard/clear')
+    ret = d.display_blackboard(name,data,None, time.time())
+    
+    return 'DISPLAY_BLACKBOARD',200
+
+@app.route('/blackboard/clear', methods=['GET'])        #clear content from the blackboard
 def clearBlackboard():
-    return 'CLEAR_BLACKBOARD '
+    #parameters
+    name = request.args.get('name')
+    ret=d.clear_blackboard(name,time.time())
+    return 'Blackboard cleared successfully',200
 
-@app.route('/blackboard/read')
-def clearBlackboard():
-    return 'READ_BLACKBOARD '
+@app.route('/blackboard/read', methods=['GET'])         #read Data from the blackboard
+def readBlackboard():
+    #parameters
+    name = request.args.get('name')
+    return 'Blackboard read successfully',200
 
-@app.route('/blackboard/getStatus')
-def clearBlackboard():
-    return 'GET_BLACKBOARD_STATUS'
+@app.route('/blackboard/getStatus', methods=['GET'])    #return the state from the blackboard
+def getBlackboardStatus():
+    #parameters
+    name = request.args.get('name')
 
-@app.route('/blackboard/list')
-def clearBlackboard():
-    return 'List_BLACKBOARD '
+    ret = d.get_blackboard_status(name)
 
-@app.route('/blackboard/delete')
+    return 'GET_BLACKBOARD_STATUS',200
+
+@app.route('/blackboard/list', methods=['GET'])         #get all blackboardnames
+def listBlackboard():
+    ret = d.list_blackboards()
+    return 'List_BLACKBOARD',200
+
+@app.route('/blackboard/delete',methods=['DELETE'])     #delete current blacklist
 def deleteBlackboard():
-    return 'DELETE_BLACKBOARD '
+    #parameters
+    name = request.args.get('name')
+    ret = d.delete_blackboard(name)
+    return 'DELETE_BLACKBOARD',200
 
-@app.route('/blackboard/deleteAll')
+@app.route('/blackboard/deleteAll', methods=['DELETE'])   #delete all blacklists
 def deleteAllBlackboards():
-    return 'DELETE_ALL_BLACKBOARDS  '
+    ret = d.delete_all_blackboards()
+    return 'DELETE_ALL_BLACKBOARDS',200
 
 app.run()

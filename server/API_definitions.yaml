@@ -114,7 +114,7 @@ paths:
           $ref: "#/definitions/BlackboardClear"
       responses:
         "200":
-          description: "Blackboard updated successfully"
+          description: "Blackboard cleared successfully"
         "404":
           description: "Blackboard does not exists"
         "400":
@@ -324,5 +324,3 @@ definitions:
         type: "string"
       validity: 
         type: "boolean"
-
-

@@ -2,9 +2,7 @@
 from flask import Flask, request
 import sys
 import time
-
-d = mongodb.Database()
-
+from datenbank import Database
 
 app = Flask(__name__)
 
@@ -22,7 +20,7 @@ def createBlackboard(pName, pValidity):
     name = request.args.post('name')
     validity = request.args.post('validity')
 
-    ret = d.create_blackboard(name,validity,time.time())
+    ret = Database.create_blackboard(name,validity,time.time())
 
     return 'Blackboard updated successfully',200
 
@@ -32,7 +30,7 @@ def displayBlackboard():
     name = request.args.get('name')
     data = request.args.get('data')
 
-    ret = d.display_blackboard(name,data,None, time.time())
+    ret = Database.display_blackboard(name,data,None, time.time())
     
     return 'DISPLAY_BLACKBOARD',200
 
@@ -40,7 +38,7 @@ def displayBlackboard():
 def clearBlackboard():
     #parameters
     name = request.args.get('name')
-    ret=d.clear_blackboard(name,time.time())
+    ret=Database.clear_blackboard(name,time.time())
     return 'Blackboard cleared successfully',200
 
 @app.route('/blackboard/read', methods=['GET'])         #read Data from the blackboard

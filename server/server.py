@@ -61,7 +61,6 @@ def readBlackboard():
 	result, status_code = db.read_blackboard(name)
 
 	if status_code == 200:
-		del result['_id']
 		return jsonify(result), status_code
 	else:
 		return 'An error occurred', status_code
@@ -73,7 +72,6 @@ def getBlackboardStatus():
 	result, status_code = db.get_blackboard_status(name)
 
 	if status_code == 200:
-		del result['_id']
 		return jsonify(result),status_code
 	else:
 		return 'An error occurred', status_code

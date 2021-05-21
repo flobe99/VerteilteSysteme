@@ -21,8 +21,8 @@ class Database(object):
 	#Aktualisiert den Inhalt eines Blackboards. Im gleichen Zuge wird die Aktualitätsinformation (Zeitstempel) aktualisiert
 		try:
 			if self.collection.count_documents({"name": name}) > 0:
-					self.collection.update_one({"name": name}, {"$set":{"text": text, "validity": validity, "time": time}})
-					return (None, 200)
+				self.collection.update_one({"name": name}, {"$set":{"text": text, "validity": validity, "time": time}})
+				return (None, 200)
 			else:
 				return (None, 404)
 		except:

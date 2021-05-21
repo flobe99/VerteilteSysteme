@@ -263,6 +263,9 @@ definitions:
         type: "string"
       validity:
         type: "boolean"
+      validityTime:
+        type: "integer"
+        format: "date-time"
 
   BlackboardDisplay:
     type: "object"

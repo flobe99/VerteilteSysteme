@@ -1,5 +1,5 @@
 #from .db.mongodb import Database
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import sys
 import time
 from database import Database
@@ -13,15 +13,15 @@ app = Flask(__name__)
 def welcome():
 	return 'Welcome'
 
-@app.route('/blackboard')
+@app.route('/blackboard' , methods=['GET'])
 def blackboard():
 	return 'blackboard'
 
-@app.route('/blackboard/create', methods=['POST'])      #create a new blackboard und save data in the mongoDB
+@app.route('/blackboard/create', methods=['GET'])      #create a new blackboard und save data in the mongoDB
 def createBlackboard():
 	#parameters
-	name = request.args.post('name')
-	validity = request.args.post('validity')
+	name = request.args.get('name')
+	validity = request.args.get('validity')
 
 	status_code = db.create_blackboard(name, validity, time.time())[1]
 
@@ -62,7 +62,7 @@ def readBlackboard():
 
 	if status_code == 200:
 		del result['_id']
-		return json.dumps(result), status_code
+		return jsonify(result), status_code
 	else:
 		return 'An error occurred', status_code
 
@@ -74,23 +74,17 @@ def getBlackboardStatus():
 
 	if status_code == 200:
 		del result['_id']
-		return json.dumps(result), status_code
+		return jsonify(result),status_code
 	else:
 		return 'An error occurred', status_code
 
 @app.route('/blackboard/list', methods=['GET'])         #get all blackboardnames
 def listBlackboard():
 	results, status_code = db.list_blackboards()
-	tmp = { }
-	count = 1
-	for r in results:
-		tmp[str(count)] = [ ]
-		tmp[str(count)].append(r['name'])
-		tmp[str(count)].append(r['text'])
-		count += 1
 
 	if status_code == 200:
-	    return json.dumps(tmp), status_code
+	
+		return jsonify(results), status_code
 	else:
 		return 'An error occurred', status_code
 
@@ -98,7 +92,7 @@ def listBlackboard():
 def deleteBlackboard():
 	#parameters
 	name = request.args.get('name')
-	status_code = d.delete_blackboard(name)[1]
+	status_code = db.delete_blackboard(name)[1]
 
 	if status_code == 200:
 	    return 'DELETE_BLACKBOARD', status_code
@@ -107,7 +101,7 @@ def deleteBlackboard():
 
 @app.route('/blackboard/deleteAll', methods=['DELETE'])   #delete all blacklists
 def deleteAllBlackboards():
-	status_code = d.delete_all_blackboards()[1]
+	status_code = db.delete_all_blackboards()[1]
 
 	if status_code == 200:
 	    return 'DELETE_ALL_BLACKBOARDS', status_code

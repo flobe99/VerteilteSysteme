@@ -21,8 +21,8 @@ class Database(object):
 	#Aktualisiert den Inhalt eines Blackboards. Im gleichen Zuge wird die Aktualitätsinformation (Zeitstempel) aktualisiert
 		try:
 			if self.collection.count_documents({"name": name}) > 0:
-				self.collection.update_one({"name": name}, {"$set":{"text": text, "validity": validity, "time": time}})
-				return (None, 200)
+					self.collection.update_one({"name": name}, {"$set":{"text": text, "validity": validity, "time": time}})
+					return (None, 200)
 			else:
 				return (None, 404)
 		except:
@@ -42,7 +42,7 @@ class Database(object):
 	def read_blackboard(self, name):
 	#Ließt den Inhalt eines Blackboards aus. Zusätlich wird die Gültigkeit der Daten signalisiert. Wenn die Nachricht veraltet ist wird diese Information zurück gegeben
 		try:
-			results = self.collection.find({"name": name})
+			results = self.collection.find({"name": name},{'_id': False})
 			if results is not None:
 				return (results[0], 200)
 			else:
@@ -54,7 +54,7 @@ class Database(object):
 	def get_blackboard_status(self, name):
 	#Gibt den aktuellen Status eines Blackboards zurück
 		try:
-			results = self.collection.find({"name": name})
+			results = self.collection.find({"name": name},{'_id': False})
 			if results is not None:
 				return (results[0], 200)
 			else:
@@ -65,7 +65,7 @@ class Database(object):
 	def list_blackboards(self):
 	#Listet alle vorhandenen Blackboards auf
 		try:
-			results = self.collection.find({})
+			results = list(self.collection.find({},{'_id': False}))
 			return (results, 200)
 		except:
 			return (None, 500)
@@ -84,5 +84,8 @@ class Database(object):
 
 	def delete_all_blackboards(self):
 	#Löscht alle Blackboards
-		self.collection.delete_many({})
-		return (None, 200)
+		try:
+			self.collection.delete_many({})
+			return (None, 200)
+		except:
+			return (None,500)

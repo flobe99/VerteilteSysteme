@@ -25,7 +25,7 @@ def createBlackboard():
 	if name is None or validityTime is None or not validityTime.isnumeric():
 		return "", 400
 
-	status_code = db.create_blackboard(name, validityTime)[1]
+	status_code = db.create_blackboard(name, int(validityTime))[1]
 
 	if status_code == 200:
 	    return 'Blackboard updated successfully', status_code

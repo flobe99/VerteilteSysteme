@@ -29,7 +29,7 @@ class Database(object):
 				return (None, 409)
 			else:
 				now = datetime.now()
-				self.collection.insert_one({"name": name, "validityTime": validityTime, "timestamp": now})
+				self.collection.insert_one({"name": name, "content": "", "validityTime": validityTime, "timestamp": now})
 				return (None, 200)
 		except:
 			return (None, 500)

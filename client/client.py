@@ -46,7 +46,7 @@ class API:
             raise APIError( status_code, "Unkown error")
 
     def display_blackboard(self, name, message):
-        status_code, text = self.call( "GET", "/blackboard/display", { "name": name, "message": message } )
+        status_code, text = self.call( "GET", "/blackboard/display", { "name": name, "data": message } )
         if status_code == 200:
             pass
         elif status_code == 400:

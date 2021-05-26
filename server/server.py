@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 #from .db.mongodb import Database
 from flask import Flask, request, jsonify
 import sys

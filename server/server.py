@@ -22,9 +22,13 @@ def createBlackboard():
 	#parameters
 	name = request.args.get('name')
 	validity = request.args.get('validity')
+	validity_time = request.args.get('validityTime')
+	try:
+		tv = type(int(validity_time))
+	except ValueError:
+		return 'ERROR: (400) Invalid parameters', 400
 
 	status_code = db.create_blackboard(name, validity, time.time())[1]
-
 	if status_code == 200:
 	    return 'Blackboard updated successfully', status_code
 	else:
@@ -59,6 +63,12 @@ def readBlackboard():
 	#parameters
 	name = request.args.get('name')
 	result, status_code = db.read_blackboard(name)
+
+	if result is None:
+		return 'ERROR: (404) Blackboard does not exists', 404
+
+	if 'content' not in result:
+		return 'ERROR: (444) Blackboard is empty', 444
 
 	if status_code == 200:
 		return jsonify(result), status_code

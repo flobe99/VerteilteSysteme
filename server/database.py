@@ -13,13 +13,11 @@ class Database(object):
 		now = datetime.now()
 		time = timestamp + timedelta(seconds = validityTime)
 		if validityTime == 0:
-			self.collection.update_one({"name": name}, {"$set":{"validity": "true"}})
+			self.collection.update_one({"name": name}, {"$set":{"validity": True}})
 		if content == "":
 			self.collection.update_one({"name": name}, {"$set":{"validity": False}})
 		elif now < time:
 			self.collection.update_one({"name": name}, {"$set":{"validity": True}})
-		elif content == "":
-			self.collection.update_one({"name": name}, {"$set":{"validity": "true"}})
 		else:
 			self.collection.update_one({"name": name}, {"$set":{"validity": False}})
 
@@ -123,15 +121,3 @@ class Database(object):
 			return (None, 200)
 		except:
 			return (None,500)
-		
-	# def validate_blackboard(self, validityTime, timestamp):
-	# 	now = datetime.now() # current date and time
-	# 	time = timestamp + timedelta(seconds = validityTime)
-	# 	if validityTime == 0:
-	# 		return True
-	# 	elif now < time:
-	# 		return True
-	# 	else:
-	# 		return False
-
-	

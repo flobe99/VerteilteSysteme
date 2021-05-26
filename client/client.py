@@ -25,6 +25,7 @@ class API:
 
         print( string )
 
+    # Wrapper for sending specific request with data to server
     def call(self, method, path, data):
         self.debug( "[DEBUG] Send {} request to {} with data {}".format( method, self.host + path, data ) )
         r = requests.request( method, self.host + path, params=data )
@@ -166,6 +167,7 @@ options = [
         Option( "--all", "Delete all blackboards" )
     ])
 ]
+############################
 
 parser = argparse.ArgumentParser( description='Command line tool for viewing and manipulating distributed blackboards' )
 parser.add_argument( "--debug", help="Enables debug output", action="store_true" )

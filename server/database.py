@@ -24,9 +24,8 @@ class Database(object):
 			if self.collection.count_documents({"name": name}) > 0:
 				return (None, 409)
 			else:
-				time = validityTime
 				now = datetime.now()
-				self.collection.insert_one({"name": name, "validityTime": time, "timestamp": now})
+				self.collection.insert_one({"name": name, "validityTime": validityTime, "timestamp": now})
 				return (None, 200)
 		except:
 			return (None, 500)

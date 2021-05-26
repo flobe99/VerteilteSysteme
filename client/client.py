@@ -12,6 +12,7 @@ class APIError( Exception ):
 
         super().__init__( "(" + str(status_code) + ") " + description )
 
+# Wrapper for the REST API
 class API:
 
     def __init__(self, host, debug=False):
@@ -32,7 +33,7 @@ class API:
         return r.status_code, r.text
 
     def create_blackboard(self, name, valid_time):
-        status_code, text = self.call( "GET", "/blackboard/create", { "name": name, "validityTime": valid_time, "validity": True } )
+        status_code, text = self.call( "POST", "/blackboard/create", { "name": name, "validityTime": valid_time } )
         if status_code == 200:
             pass
         elif status_code == 400:
@@ -52,8 +53,8 @@ class API:
             raise APIError( 400, "Invalid parameters" )
         elif status_code == 404:
             raise APIError( 404, "Blackboard not found" )
-        elif status_code == 409:
-            raise APIError( 409, "Internal error" )
+        elif status_code == 500:
+            raise APIError( 500, "Internal error" )
         else:
             raise APIError( status_code, "Unkown error")
 
@@ -65,8 +66,8 @@ class API:
             raise APIError( 400, "Invalid parameters" )
         elif status_code == 404:
             raise APIError( 404, "Blackboard does not exists" )
-        elif status_code == 409:
-            raise APIError( 409, "Internal error" )
+        elif status_code == 500:
+            raise APIError( 500, "Internal error" )
         else:
             raise APIError( status_code, "Unkown error")
 
@@ -78,10 +79,10 @@ class API:
             raise APIError( 400, "Invalid parameters" )
         elif status_code == 404:
             raise APIError( 404, "Blackboard not found" )
-        elif status_code == 409:
-            raise APIError( 409, "Internal error" )
         elif status_code == 444:
             raise APIError( 444, "Blackboard is empty" )
+        elif status_code == 500:
+            raise APIError( 500, "Internal error" )
         else:
             raise APIError( status_code, "Unkown error")
 
@@ -93,6 +94,8 @@ class API:
             raise APIError( 400, "Invalid parameters" )
         elif status_code == 404:
             raise APIError( 404, "Blackboard not found" )
+        elif status_code == 500:
+            raise APIError( 500, "Interal Error" )
         else:
             raise APIError( status_code, "Unkown error")
 
@@ -100,8 +103,8 @@ class API:
         status_code, text = self.call( "GET", "/blackboard/list", {} )
         if status_code == 200:
             return json.loads( text )
-        elif status_code == 409:
-            raise APIError( 409, "Internal error" )
+        elif status_code == 500:
+            raise APIError( 500, "Internal error" )
         else:
             raise APIError( status_code, "Unkown error")
 
@@ -113,6 +116,8 @@ class API:
             raise APIError( 400, "Invalid parameters" )
         elif status_code == 404:
             raise APIError( 404, "Blackboard not found")
+        elif status_code == 500:
+            raise APIError( 500, "Internal error")
         else:
             raise APIError( status_code, "Unkown error")
 
@@ -120,8 +125,8 @@ class API:
         status_code, text = self.call( "DELETE", "/blackboard/deleteAll", {} )
         if status_code == 200:
             pass
-        elif status_code == 400:
-            raise APIError( 400, "Invalid parameters" )
+        elif status_code == 500:
+            raise APIError( 500, "Internal error" )
         else:
             raise APIError( status_code, "Unkown error" )
 

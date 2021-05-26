@@ -99,7 +99,7 @@ def getBlackboardStatus():
 	if result is None:
 		return "", 404
 
-	result = { "timestamp": result["timestamp"].isoformat(), "validity": result["validity"], "empty": result["content"] == "" }
+	result = { "timestamp": result["timestamp"].isoformat(), "validity": result["validity"], "validityTime": result["validityTime"], "empty": result["content"] == "" }
 
 	if status_code == 200:
 		return jsonify(result),status_code

@@ -206,7 +206,7 @@ class TestBlackboardStatus(unittest.TestCase):
 		self.assertEqual( r.status[:3], "200" )
 		result = json.loads( next(r.response).decode("ascii") )
 		print( self.data[1]["timestamp"] )
-		self.assertEqual( result, {"timestamp": self.data[1]["timestamp"].isoformat(), "validity": True, "empty": False })
+		self.assertEqual( result, {"timestamp": self.data[1]["timestamp"].isoformat(), "validityTime": 5, "validity": True, "empty": False })
 
 		# Invalid
 		r = call( "GET", "/blackboard/getStatus", {
@@ -214,7 +214,7 @@ class TestBlackboardStatus(unittest.TestCase):
 		})
 		self.assertEqual( r.status[:3], "200" )
 		result = json.loads( next(r.response).decode("ascii") )
-		self.assertEqual( result, {"timestamp": self.data[0]["timestamp"].isoformat(), "validity": False, "empty": False })
+		self.assertEqual( result, {"timestamp": self.data[0]["timestamp"].isoformat(), "validityTime": 5, "validity": False, "empty": False })
 
 		# Empty
 		r = call( "GET", "/blackboard/getStatus", {
@@ -222,7 +222,7 @@ class TestBlackboardStatus(unittest.TestCase):
 		})
 		self.assertEqual( r.status[:3], "200" )
 		result = json.loads( next(r.response).decode("ascii") )
-		self.assertEqual( result, {"timestamp": self.data[2]["timestamp"].isoformat(), "validity": False, "empty": True })
+		self.assertEqual( result, {"timestamp": self.data[2]["timestamp"].isoformat(), "validityTime": 5, "validity": False, "empty": True })
 
 	def test_status_blackboard_invalid_param(self):
 		r = call( "GET", "/blackboard/getStatus", {

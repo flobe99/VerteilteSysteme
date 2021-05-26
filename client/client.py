@@ -42,6 +42,8 @@ class API:
             raise APIError( 404, "Blackboard not found" )
         elif status_code == 409:
             raise APIError( 409, "Blackboard already exists" )
+        elif status_code == 500:
+            raise APIError( 500, "Internal error" )
         else:
             raise APIError( status_code, "Unkown error")
 
@@ -213,9 +215,10 @@ try:
     elif args.option == "status":
         result = api.status_blackboard( args.name )
 
-        print( "Blackboard '{}' status:" )
+        print( "Blackboard '{}' status:".format( args.name ) )
         print( " - Empty:", result['empty'] )
         print( " - Valid: ", result['validity'] )
+        print( " - Validity time:", result['validityTime'] )
         print( " - Last message timestamp:", result['timestamp'] )
 
     elif args.option == "list":

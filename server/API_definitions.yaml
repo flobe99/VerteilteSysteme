@@ -295,8 +295,9 @@ definitions:
   BlackboardStatusOutput:
     type: "object"
     properties:
-      validityTime:
-        type: "number"
+      timestamp:
+        type: "string"
+        format: "date-time"
       validity:
         type: "boolean"
       empty:

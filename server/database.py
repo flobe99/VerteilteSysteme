@@ -14,12 +14,14 @@ class Database(object):
 		time = timestamp + timedelta(seconds = validityTime)
 		if validityTime == 0:
 			self.collection.update_one({"name": name}, {"$set":{"validity": "true"}})
+		if content == "":
+			self.collection.update_one({"name": name}, {"$set":{"validity": False}})
 		elif now < time:
-			self.collection.update_one({"name": name}, {"$set":{"validity": "true"}})
+			self.collection.update_one({"name": name}, {"$set":{"validity": True}})
 		elif content == "":
 			self.collection.update_one({"name": name}, {"$set":{"validity": "true"}})
 		else:
-			self.collection.update_one({"name": name}, {"$set":{"validity": "false"}})
+			self.collection.update_one({"name": name}, {"$set":{"validity": False}})
 
 	def create_blackboard(self, name, validityTime):
 	# Erstellt auf dem Server eine neues leeres Blackboard
@@ -61,30 +63,32 @@ class Database(object):
 	# Ließt den Inhalt eines Blackboards aus. Zusätlich wird die Gültigkeit der Daten signalisiert. Wenn die Nachricht veraltet ist wird diese Information zurück gegeben.
 	# Die Gültigkeit der Daten wird als eigenes Attribut in der Funktion validate_blackboard übergeben.
 		try:
-			temp = self.collection.find({"name": name},{'_id': False})
-			if temp is not None:	
-				name = temp[0]["name"]
-				validityTime = temp[0]["validityTime"]
-				timestamp =	temp[0]["timestamp"]
-				content = temp[0]["content"]
+			temp = self.collection.find_one({"name": name},{'_id': False})
+			if temp is not None:
+				name = temp["name"]
+				validityTime = temp["validityTime"]
+				timestamp =	temp["timestamp"]
+				content = temp["content"]
 				self.validate_blackboard(name, content, validityTime, timestamp)
-				results = self.collection.find({"name": name},{'_id': False})
-				return (results[0], 200)
+				results = self.collection.find_one({"name": name},{'_id': False})
+				return (results, 200)
 			else:
 				return (None, 404)
-		except:
+		except Exception as e:
+			raise( e )
 			return (None, 500)
 
 
 	def get_blackboard_status(self, name):
 	# Gibt den aktuellen Status eines Blackboards zurück.
 		try:
-			temp = self.collection.find({"name": name},{'_id': False})
+			temp = self.collection.find_one({"name": name},{'_id': False})
 			if temp is not None:	
-				name = temp[0]["name"]
-				validityTime = temp[0]["validityTime"]
-				timestamp =	temp[0]["timestamp"]
-				self.validate_blackboard(name, validityTime, timestamp)
+				name = temp["name"]
+				validityTime = temp["validityTime"]
+				timestamp =	temp["timestamp"]
+				content = temp["content"]
+				self.validate_blackboard(name, content, validityTime, timestamp)
 				results = self.collection.find({"name": name},{'_id': False})
 				return (results[0], 200)
 			else:
@@ -119,3 +123,15 @@ class Database(object):
 			return (None, 200)
 		except:
 			return (None,500)
+		
+	# def validate_blackboard(self, validityTime, timestamp):
+	# 	now = datetime.now() # current date and time
+	# 	time = timestamp + timedelta(seconds = validityTime)
+	# 	if validityTime == 0:
+	# 		return True
+	# 	elif now < time:
+	# 		return True
+	# 	else:
+	# 		return False
+
+	

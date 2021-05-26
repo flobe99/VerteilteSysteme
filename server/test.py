@@ -1,17 +1,25 @@
 #!/usr/bin/env python3
 import unittest
 import server
-from urllib.parse import urlencode
 import database
 import mongomock
 import json
-import time
+
+from urllib.parse import urlencode
+from datetime import *
 
 app = server.app.test_client()
 def call(method, path, data):
 	return app.open( path, method=method, query_string=urlencode( data ))
 
-@mongomock.patch(servers=(('server.example.com', 27017),))
+# Wrapper for generating datetime.
+# Microseconds are not stored in MongoDB. Cut off microseconds for testing
+def now():
+	d = datetime.now()
+	d = d.replace( microsecond=0 )
+
+	return d
+
 class MockDatabase( database.Database ):
 
 	def __init__(self):
@@ -23,7 +31,7 @@ class TestBlackboardCreate(unittest.TestCase):
 	def setUp(self):
 		server.db = MockDatabase()
 		server.db.collection.insert_many([
-			{"name": "exists"}
+			{ "name": "exists"}
 		])
 
 	def test_create_blackboard_success(self):
@@ -65,8 +73,8 @@ class TestBlackboardDisplay(unittest.TestCase):
 	def setUp(self):
 		server.db = MockDatabase()
 		server.db.collection.insert_many([
-			{"name": "test1", "content": None, "validityTime": 5, "timestamp": time.time()},
-			{"name": "test2", "content": "old", "validityTime": 5, "timestamp": time.time()}
+			{"name": "test1", "content": "", "validityTime": 5, "timestamp": now() },
+			{"name": "test2", "content": "old", "validityTime": 5, "timestamp": now() }
 		])
 
 	def test_display_blackboard_sucess(self):
@@ -108,8 +116,8 @@ class TestBlackboardClear(unittest.TestCase):
 	def setUp(self):
 		server.db = MockDatabase()
 		server.db.collection.insert_many([
-			{"name": "test1", "content": None, "validityTime": 5, "timestamp": time.time()},
-			{"name": "test2", "content": "old", "validityTime": 5, "timestamp": time.time()}
+			{"name": "test1", "content": "", "validityTime": 5, "timestamp": now() },
+			{"name": "test2", "content": "old", "validityTime": 5, "timestamp": now() }
 		])
 
 	def test_clear_blackboard_success(self):
@@ -137,9 +145,9 @@ class TestBlackboardClear(unittest.TestCase):
 class TestBlackboardRead(unittest.TestCase):
 	def setUp(self):
 		self.data = [
-			{"name": "test1", "content": "new", "validityTime": 5, "timestamp": time.time()},
-			{"name": "test2", "content": "old", "validityTime": 5, "timestamp": time.time() - 10},
-			{"name": "test2", "content": None, "validityTime": 5, "timestamp": time.time()}
+			{"name": "test1", "content": "new", "validityTime": 5, "timestamp": now() },
+			{"name": "test2", "content": "old", "validityTime": 5, "timestamp": (now() - timedelta(10)) },
+			{"name": "test3", "content": "", "validityTime": 5, "timestamp": now() }
 		];
 
 		server.db = MockDatabase()
@@ -152,7 +160,7 @@ class TestBlackboardRead(unittest.TestCase):
 		})
 		self.assertEqual( r.status[:3], "200" )
 		result = json.loads( next(r.response).decode("ascii") )
-		self.assertEquals( result, {"content": "new", "validity": True} )
+		self.assertEqual( result, {"content": "new", "validity": True} )
 
 		# Invalid
 		r = call( "GET", "/blackboard/read", {
@@ -160,7 +168,7 @@ class TestBlackboardRead(unittest.TestCase):
 		})
 		self.assertEqual( r.status[:3], "200" )
 		result = json.loads( next(r.response).decode("ascii") )
-		self.assertEquals( result, {"content": "old", "validity": False} )
+		self.assertEqual( result, {"content": "old", "validity": False} )
 
 	def test_read_blackboard_invalid_param(self):
 		r = call( "GET", "/blackboard/read", {
@@ -177,16 +185,16 @@ class TestBlackboardRead(unittest.TestCase):
 		r = call( "GET", "/blackboard/read", {
 			"name": "test3"
 		})
-		self.assertEqual( r.status[:3], "404" )
+		self.assertEqual( r.status[:3], "444" )
 
 
 class TestBlackboardStatus(unittest.TestCase):
 	def setUp(self):
 		server.db = MockDatabase()
 		self.data = [
-			{"name": "test1", "content": "old", "validityTime": 5, "timestamp": time.time() - 10 },
-			{"name": "test2", "content": "new", "validityTime": 5, "timestamp": time.time() },
-			{"name": "test3", "content": None, "validityTime": 5, "timestamp": time.time() }
+			{"name": "test1", "content": "old", "validityTime": 5, "timestamp": (now() - timedelta(10)) },
+			{"name": "test2", "content": "new", "validityTime": 5, "timestamp": now() },
+			{"name": "test3", "content": "", "validityTime": 5, "timestamp": now() }
 		]
 		server.db.collection.insert_many(self.data)
 
@@ -197,7 +205,8 @@ class TestBlackboardStatus(unittest.TestCase):
 		})
 		self.assertEqual( r.status[:3], "200" )
 		result = json.loads( next(r.response).decode("ascii") )
-		self.assertEquals( result, {"validityTime": self.data[1]["timestamp"], "validity": True, "empty": False })
+		print( self.data[1]["timestamp"] )
+		self.assertEqual( result, {"timestamp": self.data[1]["timestamp"].isoformat(), "validity": True, "empty": False })
 
 		# Invalid
 		r = call( "GET", "/blackboard/getStatus", {
@@ -205,7 +214,7 @@ class TestBlackboardStatus(unittest.TestCase):
 		})
 		self.assertEqual( r.status[:3], "200" )
 		result = json.loads( next(r.response).decode("ascii") )
-		self.assertEquals( result, {"validityTime": self.data[0]["timestamp"], "validity": False, "empty": False })
+		self.assertEqual( result, {"timestamp": self.data[0]["timestamp"].isoformat(), "validity": False, "empty": False })
 
 		# Empty
 		r = call( "GET", "/blackboard/getStatus", {
@@ -213,7 +222,7 @@ class TestBlackboardStatus(unittest.TestCase):
 		})
 		self.assertEqual( r.status[:3], "200" )
 		result = json.loads( next(r.response).decode("ascii") )
-		self.assertEquals( result, {"validityTime": self.data[2]["timestamp"], "validity": False, "empty": True })
+		self.assertEqual( result, {"timestamp": self.data[2]["timestamp"].isoformat(), "validity": False, "empty": True })
 
 	def test_status_blackboard_invalid_param(self):
 		r = call( "GET", "/blackboard/getStatus", {
@@ -230,8 +239,8 @@ class TestBlackboardList(unittest.TestCase):
 	def setUp(self):
 		server.db = MockDatabase()
 		server.db.collection.insert_many([
-			{"name": "test1", "content": None, "validityTime": 5, "timestamp": time.time()},
-			{"name": "test2", "content": "old", "validityTime": 5, "timestamp": time.time()}
+			{"name": "test1", "content": "", "validityTime": 5, "timestamp": now()},
+			{"name": "test2", "content": "old", "validityTime": 5, "timestamp": now()}
 		])
 
 	def test_list_blackboard_success(self):
@@ -240,29 +249,29 @@ class TestBlackboardList(unittest.TestCase):
 		self.assertEqual( r.status[:3], "200" )
 
 		result = json.loads( next(r.response).decode('ascii') )
-		self.assertEquals( result, [{"name": "test1", "name": "test2"}] )
+		self.assertEqual( sorted( result, key=lambda e: e["name"] ), [{"name": "test1"}, {"name": "test2"}] )
 
 class TestBlackboardDelete(unittest.TestCase):
 	def setUp(self):
 		server.db = MockDatabase()
 		server.db.collection.insert_many([
-			{"name": "test1", "content": None, "validityTime": 5, "timestamp": time.time()},
-			{"name": "test2", "content": "old", "validityTime": 5, "timestamp": time.time()}
+			{"name": "test1", "content": "", "validityTime": 5, "timestamp": now()},
+			{"name": "test2", "content": "old", "validityTime": 5, "timestamp": now()}
 		])
 
 	def test_delete_blackboard_success(self):
-		r = call( "GET", "/blackboard/delete", {
+		r = call( "DELETE", "/blackboard/delete", {
 			"name": "test1"
 		})
 		self.assertEqual( r.status[:3], "200" )
 
 	def test_delete_blackboard_invalid_param(self):
-		r = call( "GET", "/blackboard/delete", {
+		r = call( "DELETE", "/blackboard/delete", {
 		})
 		self.assertEqual( r.status[:3], "400" )
 
 	def test_delete_blackboard_not_found(self):
-		r = call( "GET", "/blackboard/delete", {
+		r = call( "DELETE", "/blackboard/delete", {
 			"name": "test3"
 		})
 		self.assertEqual( r.status[:3], "404" )
@@ -271,12 +280,12 @@ class TestBlackboardDeleteAll(unittest.TestCase):
 	def setUp(self):
 		server.db = MockDatabase()
 		server.db.collection.insert_many([
-			{"name": "test1", "content": None, "validityTime": 5, "timestamp": time.time()},
-			{"name": "test2", "content": "old", "validityTime": 5, "timestamp": time.time()}
+			{"name": "test1", "content": "", "validityTime": 5, "timestamp": now()},
+			{"name": "test2", "content": "old", "validityTime": 5, "timestamp": now()}
 		])
 
 	def test_deleteall_blackboard_success(self):
-		r = call( "GET", "/blackboard/deleteAll", {
+		r = call( "DELETE", "/blackboard/deleteAll", {
 		})
 		self.assertEqual( r.status[:3], "200" )
 

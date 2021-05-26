@@ -191,12 +191,15 @@ try:
 
     if args.option == 'create':
         api.create_blackboard( args.name, args.valid_time )
+        print( "Created blackboard '{}' with a valid time of {}".format( args.name, args.valid_time ) )
 
     elif args.option == "display":
         api.display_blackboard( args.name, args.message )
+        print( "Displayed '{}' to blackboard '{}'".format( args.message, args.name ) )
 
     elif args.option == "clear":
         api.clear_blackboard( args.name )
+        print( "Cleared blackboard '{}'".format( args.name ) )
 
     elif args.option == "read":
         bb = api.read_blackboard( args.name )
@@ -204,21 +207,30 @@ try:
         valid = "valid" if bb['validity'] else "invalid"
         content = bb['content']
 
-        print( valid, content )
+        print( "Blackboard data ({}):".format( valid ) )
+        print( content )
 
     elif args.option == "status":
-        valid = api.status_blackboard( args.name )[ "validity" ]
-        print( ("valid" if valid else "invalid" ) )
+        result = api.status_blackboard( args.name )
+
+        print( "Blackboard '{}' status:" )
+        print( " - Empty:", result['empty'] )
+        print( " - Valid: ", result['validity'] )
+        print( " - Last message timestamp:", result['timestamp'] )
 
     elif args.option == "list":
         blackboards = api.list_blackboards()
-        print( ",".join( [bb['name'] for bb in blackboards]) )
+
+        print( "Available blackboards:" )
+        [print( " -", bb["name"] ) for bb in blackboards]
 
     elif args.option == "delete":
         if args.all:
             api.delete_blackboard_all()
+            print( "Deleted all blackboards" )
         else:
             api.delete_blackboard( args.name )
+            print( "Deleted blackboard '{}'".format( args.name) )
 
 except APIError as e:
     print( "ERROR:", e )

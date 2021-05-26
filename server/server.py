@@ -116,4 +116,5 @@ def deleteAllBlackboards():
 	else:
 		return 'An error occurred', status_code
 
-app.run()
+if __name__ == '__main__':
+	app.run()

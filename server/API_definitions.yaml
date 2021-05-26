@@ -2,7 +2,7 @@ swagger: "2.0"
 info:
   description: ""
   version: "1.0.0"
-  title: "Swagger Petstore"
+  title: "Testat Verteilte Systeme"
   termsOfService: "http://swagger.io/terms/"
   contact:
     email: "apiteam@swagger.io"
@@ -295,11 +295,13 @@ definitions:
   BlackboardStatusOutput:
     type: "object"
     properties:
-      validityDate:
+      validityTime:
         type: "number"
       validity:
         type: "boolean"
-        
+      empty:
+        type: "boolean"
+      
         
   BlackboardClear:
     type: "object"
